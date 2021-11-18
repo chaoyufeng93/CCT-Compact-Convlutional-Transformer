@@ -60,7 +60,7 @@ class Multi_Head_ATT(torch.nn.Module):
       self.k_att = torch.nn.Linear(emb_dim, emb_dim, bias = False) 
       self.v_att = torch.nn.Linear(emb_dim, emb_dim, bias = False) 
       self.attention = Attention(emb_dim, multi_head, dropout = dropout)
-      self.LN = torch.nn.LayerNorm(emb_dim, eps = 1e-6)
+      self.LN = torch.nn.LayerNorm(emb_dim)
       self.WO = torch.nn.Linear(emb_dim, emb_dim)
       self.dropout = torch.nn.Dropout(p = dropout)
 
@@ -88,7 +88,7 @@ class Feed_Forward(torch.nn.Module):
     self.w1 = torch.nn.Linear(emb_dim, dim_expan*emb_dim)
     self.w2 = torch.nn.Linear(dim_expan*emb_dim, emb_dim)
     self.gelu = torch.nn.GELU()
-    self.LN = torch.nn.LayerNorm(emb_dim, eps = 1e-6)
+    self.LN = torch.nn.LayerNorm(emb_dim)
     self.dropout = torch.nn.Dropout(p = dropout)
   def forward(self,x):
     res = x
