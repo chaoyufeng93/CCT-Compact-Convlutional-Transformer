@@ -14,9 +14,8 @@ class Conv_Token_Emb(torch.nn.Module):
     self.pool = torch.nn.MaxPool2d(kernel_size = 2)
 
   def forward(self, x):
-    #shape_flow: x (b_s, c, h, w) > conv.permute (b_s, h, w, c) > (b_s, (h*w), c)
     out = self.relu(self.conv(x))
-    out = self.pool(out) # (b_s, h, w, c)
+    out = self.pool(out) 
     return out
   
 class Conv_Block(torch.nn.Module):
@@ -158,8 +157,8 @@ class CCTransformer(torch.nn.Module):
     self.linear = torch.nn.Linear(emb_dim[-1], class_num) #,bias = False
 
   def forward(self, x):
-    out = self.conv_blk(x)
-    out = out.permute(0,2,3,1)
+    out = self.conv_blk(x) # (b_s, c, h, w)
+    out = out.permute(0,2,3,1) #(b_s, h, w, c)
     out = rearrange(out, 'b h w c -> b (h w) c')
     out = self.layer_norm(self.pos_emb.repeat(x.shape[0],1,1) + out)
     out = self.encoder(out)
