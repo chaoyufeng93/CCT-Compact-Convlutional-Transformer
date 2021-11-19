@@ -22,4 +22,6 @@ epoch: 200
 
 LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW
 
-test acc: comming soon !!!!!!
+test acc: 87.08%
+
+The best epoch of val acc (87.1%) is 194th , I believe if I train much longer, the performance will increase! (the training acc at the final epoch is 90.03%)
