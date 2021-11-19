@@ -151,7 +151,7 @@ class CCTransformer(torch.nn.Module):
     self.conv_blk = Conv_Block(conv_layer ,img_size, in_channel, emb_dim, k_size, stride, padding) # num_layer, img_size, in_channel, emb_dim, k_size, stride, padding, position = True
     seq_len = self.conv_blk.seq_len()
     self.pos_emb = torch.nn.Parameter(torch.zeros(seq_len*seq_len , emb_dim[-1]))
-    self.layer_norm = torch.nn.LayerNorm(emb_dim[-1])
+    #self.layer_norm = torch.nn.LayerNorm(emb_dim[-1])
     self.encoder = Encoder(num_layer, emb_dim[-1], head, dim_expan = dim_expan, dropout = dropout) # num_layer, seq_len, emb_dim, head
     self.seq_pooling = Seq_Pooling(emb_dim[-1])
     self.linear = torch.nn.Linear(emb_dim[-1], class_num) #,bias = False
@@ -160,7 +160,7 @@ class CCTransformer(torch.nn.Module):
     out = self.conv_blk(x) # (b_s, c, h, w)
     out = out.permute(0,2,3,1) #(b_s, h, w, c)
     out = rearrange(out, 'b h w c -> b (h w) c')
-    out = self.layer_norm(self.pos_emb.repeat(x.shape[0],1,1) + out)
+    out = self.pos_emb.repeat(x.shape[0],1,1) + out
     out = self.encoder(out)
     out = self.seq_pooling(out)
     out = self.linear(out.view(out.shape[0],-1)) 
