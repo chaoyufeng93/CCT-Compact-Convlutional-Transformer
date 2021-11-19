@@ -1,4 +1,4 @@
-This model is learning from scratch
+This model is learning from scratch, I applied the AutoAugment!
 
 CCT-4/3*2: 
 
@@ -21,4 +21,8 @@ batch_size: 128
 
 epoch: 100
 
-test acc:
+LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW
+
+test acc: 84.81%
+
+I found if use AutoAugment, 100 epoch is not enough, model is still improve till the final epoch, I will test the performance and train it for 200 epoch
