@@ -124,11 +124,12 @@ class Seq_Pooling(torch.nn.Module):
     super(Seq_Pooling, self).__init__()
     self.linear = torch.nn.Linear(emb_dim, 1)
     self.softmax = torch.nn.Softmax(dim = -1)
+    self.layer_norm = torch.nn.LayerNorm(emb_dim)
 
   def forward(self, x):
     out = self.linear(x) # (b_s, seq_len , 1)
     out = self.softmax(out.permute(0,2,1)) # (b_s, 1, seq_len)
-    out = torch.bmm(out, x) # (b_s, 1, emb_dim)
+    out = self.layer_norm(torch.bmm(out, x)) # (b_s, 1, emb_dim)
     return out
 
 class CCTransformer(torch.nn.Module):
