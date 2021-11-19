@@ -20,7 +20,7 @@ batch_size: 128
 
 epoch: 200
 
-LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW
+LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW. And I also applied label smoothing: p = 0.1
 
 test acc: 87.08%
 
