@@ -9,7 +9,13 @@ from einops import rearrange
 class Conv_Token_Emb(torch.nn.Module):
   def __init__(self, in_channel, emb_dim, k_size, stride, padding, pooling_size = 3, pooling_stride = 2, pooling_pad = 1):
     super(Conv_Token_Emb, self).__init__()
-    self.conv = torch.nn.Conv2d(in_channels = in_channel, out_channels = emb_dim, kernel_size = k_size, stride = stride, padding = padding)
+    self.conv = torch.nn.Conv2d(
+      in_channels = in_channel, 
+      out_channels = emb_dim, 
+      kernel_size = (k_size,k_size), 
+      stride = (stride,stride), 
+      padding = (padding,padding)
+    )
     self.relu = torch.nn.ReLU()
     self.pool = torch.nn.MaxPool2d(kernel_size = pooling_size, stride = pooling_stride, padding = pooling_pad)
 
