@@ -133,7 +133,8 @@ class Seq_Pooling(torch.nn.Module):
     self.layer_norm = torch.nn.LayerNorm(emb_dim)
 
   def forward(self, x):
-    out = self.linear(self.layer_norm(x)) # (b_s, seq_len , 1)
+    x = self.layer_norm(x)
+    out = self.linear(x) # (b_s, seq_len , 1)
     out = self.softmax(out.permute(0,2,1)) # (b_s, 1, seq_len)
     out = torch.bmm(out, x) # (b_s, 1, emb_dim)
     return out
