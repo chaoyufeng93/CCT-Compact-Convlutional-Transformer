@@ -4,6 +4,7 @@ import math
 import numpy as np
 import random
 import torch.nn.functional as F
+from torchvision import ops
 from einops import rearrange
 
 class Conv_Token_Emb(torch.nn.Module):
@@ -58,7 +59,7 @@ class Attention(torch.nn.Module):
     return out
   
 class Multi_Head_ATT(torch.nn.Module):
-    def __init__(self, emb_dim, multi_head = 1, dropout = 0):
+    def __init__(self, emb_dim, multi_head = 1, dropout = 0, layer_drop = 0):
       super(Multi_Head_ATT,self).__init__()
       self.head = multi_head
       self.emb_dim = emb_dim
@@ -69,6 +70,8 @@ class Multi_Head_ATT(torch.nn.Module):
       self.LN = torch.nn.LayerNorm(emb_dim)
       self.WO = torch.nn.Linear(emb_dim, emb_dim)
       self.dropout = torch.nn.Dropout(p = dropout)
+                ### layer drop 
+      self.layer_drop = ops.StochasticDepth(p = layer_drop, mode='batch')
 
     def forward(self, q,k,v):
       res = q
@@ -85,37 +88,40 @@ class Multi_Head_ATT(torch.nn.Module):
         out = self.attention(q, k, v).permute(0,2,1,3).contiguous().view(-1,seq_len,self.emb_dim)
       out = self.WO(out)   
       out = self.dropout(out)
-      out = out + res
+      out = self.layer_drop(out) + res
       return out
  
 class Feed_Forward(torch.nn.Module): 
-  def __init__(self, emb_dim, dim_expan = 4, dropout = 0):
+  def __init__(self, emb_dim, dim_expan = 4, dropout = 0, layer_drop = 0):
     super(Feed_Forward,self).__init__()
     self.w1 = torch.nn.Linear(emb_dim, dim_expan*emb_dim)
     self.w2 = torch.nn.Linear(dim_expan*emb_dim, emb_dim)
     self.gelu = torch.nn.GELU()
     self.LN = torch.nn.LayerNorm(emb_dim)
     self.dropout = torch.nn.Dropout(p = dropout)
+              ### layer drop 
+    self.layer_drop = ops.StochasticDepth(p = layer_drop, mode='batch')
+    
   def forward(self,x):
     res = x
     x = self.LN(x)
     out = self.dropout(self.gelu(self.w1(x)))
     out = self.w2(out)
     out = self.dropout(out)
-    out = out + res
+    out = self.layer_drop(out) + res
     return out
 
 class Encoder(torch.nn.Module):
-  def __init__(self, num_layer, emb_dim, head, dim_expan = 4, dropout = 0):
+  def __init__(self, num_layer, emb_dim, head, dim_expan = 4, dropout = 0, layer_drop = 0):
     super(Encoder, self).__init__()
     self.num_layer = num_layer
-    self.attention = Multi_Head_ATT(emb_dim, multi_head = head, dropout = dropout)
-    self.FF = Feed_Forward(emb_dim, dim_expan = dim_expan, dropout = dropout)
+    self.attention = Multi_Head_ATT(emb_dim, multi_head = head, dropout = dropout, layer_drop = layer_drop)
+    self.FF = Feed_Forward(emb_dim, dim_expan = dim_expan, dropout = dropout, layer_drop = layer_drop)
     self.connect1 = torch.nn.ModuleList([
-                                         Multi_Head_ATT(emb_dim, multi_head = head, dropout = dropout) for i in range(num_layer - 1)
+                                         Multi_Head_ATT(emb_dim, multi_head = head, dropout = dropout, layer_drop = layer_drop) for i in range(num_layer - 1)
                                          ])
     self.connect2 = torch.nn.ModuleList([
-                                         Feed_Forward(emb_dim, dim_expan = dim_expan, dropout = dropout) for i in range(num_layer - 1)
+                                         Feed_Forward(emb_dim, dim_expan = dim_expan, dropout = dropout, layer_drop = layer_drop) for i in range(num_layer - 1)
                                          ])
 
   def forward(self, x):
@@ -152,7 +158,8 @@ class CCTransformer(torch.nn.Module):
                conv_layer = 2, 
                num_layer = 4,
                dim_expan = 1,
-               dropout = 0):
+               dropout = 0,
+               layer_drop = 0):
     
     super(CCTransformer,self).__init__()
 
@@ -161,7 +168,7 @@ class CCTransformer(torch.nn.Module):
     self.pos_emb = torch.nn.Parameter(torch.randn(seq_len*seq_len , emb_dim[-1]))
     self.dropout = torch.nn.Dropout(p = dropout)
     #self.layer_norm = torch.nn.LayerNorm(emb_dim[-1])
-    self.encoder = Encoder(num_layer, emb_dim[-1], head, dim_expan = dim_expan, dropout = dropout) # num_layer, seq_len, emb_dim, head
+    self.encoder = Encoder(num_layer, emb_dim[-1], head, dim_expan = dim_expan, dropout = dropout, layer_drop = layer_drop) # num_layer, seq_len, emb_dim, head
     self.seq_pooling = Seq_Pooling(emb_dim[-1])
     self.linear = torch.nn.Linear(emb_dim[-1], class_num) 
 
