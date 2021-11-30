@@ -16,6 +16,8 @@ emb_dim: [64, 128]
 
 dropout: 0.1
 
+layer_drop: 0.1
+
 batch_size: 128
 
 epoch: 200
@@ -26,5 +28,5 @@ using torch.nn.init.constant_(model.bias, 0) & torch.nn.init.constant_(model.wei
 
 LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW
 
-test acc: 
+test acc: 88.96%
 
