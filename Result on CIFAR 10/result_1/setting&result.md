@@ -18,10 +18,13 @@ dropout: 0.1
 
 batch_size: 128
 
-epoch: 100
+epoch: 200
+
+using torch.nn.init.trunc_normal_(model.weight, std=.02) & torch.nn.init.constant_(model.bias, 0) for linear 
+
+using torch.nn.init.constant_(model.bias, 0) & torch.nn.init.constant_(model.weight, 1.0) for layer norm
 
 LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW
 
-test acc: 84.81%
+test acc: 
 
-I found if use AutoAugment, 100 epoch is not enough, model is still improve till the final epoch, I will test the performance and train it for 200 epoch
