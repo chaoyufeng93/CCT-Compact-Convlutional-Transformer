@@ -17,10 +17,11 @@ class Conv_Token_Emb(torch.nn.Module):
       stride = (stride,stride), 
       padding = (padding,padding)
     )
+    self.relu = torch.nn.ReLU()
     self.pool = torch.nn.MaxPool2d(kernel_size = pooling_size, stride = pooling_stride, padding = pooling_pad)
 
   def forward(self, x):
-    out = self.conv(x)
+    out = self.relu(self.conv(x))
     out = self.pool(out) 
     return out
   
