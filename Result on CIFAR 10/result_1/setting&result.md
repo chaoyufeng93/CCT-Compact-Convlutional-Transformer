@@ -28,5 +28,8 @@ using torch.nn.init.constant_(model.bias, 0) & torch.nn.init.constant_(model.wei
 
 LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW
 
-test acc: 88.96% (the best epoch is 199th, if train the model much longer, the result can definitely improve)
+val acc: 89.7% (the best epoch is 199th, if train the model much longer, the result can definitely improve)
+
+test acc: 88.96% 
+
 
