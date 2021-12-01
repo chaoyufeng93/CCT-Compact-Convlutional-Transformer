@@ -1,8 +1,8 @@
 This model is learning from scratch, I applied the AutoAugment!
 
-CCT-4/3*2:
+CCT-7/3*2:
 
-layer: 4
+layer: 7
 
 head: 2
 
@@ -10,18 +10,24 @@ conv_layer: 2
 
 kernel_size: [3, 3]
 
-dim_expan: 1
+dim_expan: 2
 
-emb_dim: [64, 128]
+emb_dim: [64, 256]
 
 dropout: 0.1
+
+layer_drop: 0.1
 
 batch_size: 128
 
 epoch: 200
 
-LR: 10 steps warm up and then used the Cosine Annealing (2e-5, 5e-4, 2e-5) and the Optimizer is AdamW. And I also applied label smoothing: p = 0.1
+using torch.nn.init.trunc_normal_(model.weight, std=.02) & torch.nn.init.constant_(model.bias, 0) for linear
 
-test acc: 87.08%
+using torch.nn.init.constant_(model.bias, 0) & torch.nn.init.constant_(model.weight, 1.0) for layer norm
 
-The best epoch of val acc (87.1%) is 194th , I believe if I train much longer, the performance will increase! (the training acc at the final epoch is 90.03%)
+LR: 10 steps warm up and then used the Cosine Annealing (1e-5, 5e-4, 1e-5) and the Optimizer is AdamW
+
+val acc: 90.8% (the best epoch is 195th, if train the model much longer, the result can definitely improve)
+
+test acc: 90.6%
